@@ -7,48 +7,31 @@ public class FadeInOut : MonoBehaviour
     [SerializeField] private float _fadeDuration = 2f;
 
     private bool _hasFaded = false;
+    private Coroutine _fadeCoroutine;
 
     private void Update()
     {
         if (Input.GetButtonDown("Jump"))
         {
-            if (_hasFaded)
-            {
-                StopCoroutine(FadeIn());
-                StartCoroutine(FadeOut());
-                _hasFaded = false;
-            }
-            else
-            {
-                StopCoroutine(FadeOut());
-                StartCoroutine(FadeIn());
-                _hasFaded = true;
-            }
+            if (_fadeCoroutine != null) StopCoroutine(_fadeCoroutine);
+
+            float targetAlpha = _hasFaded ? 0f : 1f;
+            _fadeCoroutine = StartCoroutine(Fade(targetAlpha));
+            _hasFaded = !_hasFaded;
         }
     }
 
-    IEnumerator FadeIn()
+    IEnumerator Fade(float targetAlpha)
     {
         float timer = 0f;
         while (timer < _fadeDuration)
         {
             timer += Time.deltaTime;
-            _fadeInOut.alpha = Mathf.Lerp(0f, 1f, timer / _fadeDuration);
-            yield return null;
-        }
-        _fadeInOut.alpha = 1f;
-    }
+            _fadeInOut.alpha = Mathf.Lerp(_fadeInOut.alpha, targetAlpha, timer / _fadeDuration);
 
-    IEnumerator FadeOut()
-    {
-        float timer = 0f;
-        while (timer < _fadeDuration)
-        {
-            timer += Time.deltaTime;
-            _fadeInOut.alpha = Mathf.Lerp(1f, 0f, timer / _fadeDuration);
             yield return null;
         }
-        _fadeInOut.alpha = 0f;
+        _fadeInOut.alpha = targetAlpha;
     }
 
 }
